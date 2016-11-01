@@ -4,15 +4,21 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.ObjectReader;
+import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepository;
+import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 
 public class PageCommit {
 
@@ -46,14 +52,60 @@ public class PageCommit {
 						}
 					}
 				}
+				
 
 				if (foundInThisBranch) {
-					System.out.println(commit.getName());
-					System.out.println(commit.getAuthorIdent().getName());
-					System.out.println(new Date(commit.getCommitTime()));
-					System.out.println(commit.getFullMessage());
+				
+					
+					PersonIdent authorIdent = commit.getAuthorIdent();
+					Date authorDate = authorIdent.getWhen();
+					TimeZone authorTimeZone = authorIdent.getTimeZone();
+
+					PersonIdent committerIdent = commit.getCommitterIdent();
+					
+					
+					
+					System.out.println("Info");
+					System.out.println("Commit name/ID: " + commit.getName());
+//					System.out.println("Commited by (uname): "+commit.getAuthorIdent().getName());
+//					System.out.println("Commited Date: " + new Date(commit.getCommitTime()));
+//					System.out.println("Commited Message: "+ commit.getFullMessage());
+//					System.out.println("Time zone: " + authorTimeZone);
+//					System.out.println("Date : " + authorDate);
+//					System.out.println("Commiter: " + committerIdent);
+					
+					
 				}
 			}
+		}
+		System.out.println("______________________________________________________________");
+		
+		ObjectId oldHead = repo.resolve("HEAD^^^{tree}");
+		
+		System.out.println(oldHead);
+		
+		ObjectId head = repo.resolve("HEAD^{tree}");
+		
+		System.out.println(head);
+		
+
+		
+		
+
+		ObjectReader reader = repo.newObjectReader();
+		CanonicalTreeParser oldTreeIter = new CanonicalTreeParser();
+		oldTreeIter.reset(reader, oldHead);
+		CanonicalTreeParser newTreeIter = new CanonicalTreeParser();
+		newTreeIter.reset(reader, head);
+		List<DiffEntry> diffs= git.diff()
+		                    .setNewTree(newTreeIter)
+		                    .setOldTree(oldTreeIter)
+		                    .call();
+		
+	
+		System.out.println("______________________________________________________________");
+		for(DiffEntry dif: diffs){
+			System.out.println(dif.toString());
 		}
 	}
 }
