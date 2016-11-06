@@ -1,5 +1,7 @@
 package ia.commithistory;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -16,9 +18,12 @@ import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepository;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
+import org.eclipse.jgit.treewalk.TreeWalk;
+import org.eclipse.jgit.treewalk.filter.PathFilter;
 
 public class PageCommit {
 
@@ -41,7 +46,7 @@ public class PageCommit {
 				boolean foundInThisBranch = false;
 
 				RevCommit targetCommit = walk.parseCommit(repo.resolve(commit.getName()));
-				for (Map.Entry<String, Ref> e : repo.getAllRefs().entrySet()) {
+				/*for (Map.Entry<String, Ref> e : repo.getAllRefs().entrySet()) {
 					if (e.getKey().startsWith(Constants.R_HEADS)) {
 						if (walk.isMergedInto(targetCommit, walk.parseCommit(e.getValue().getObjectId()))) {
 							String foundInBranch = e.getValue().getName();
@@ -51,7 +56,62 @@ public class PageCommit {
 							}
 						}
 					}
+				}*/
+
+				
+				
+			
+//				 byte[] commitInfoBytes = targetCommit.getRawBuffer();
+
+				
+//				http://stackoverflow.com/questions/19941597/jgit-use-treewalk-to-list-files-and-folders
+				RevTree tree = commit.getTree();
+				
+				TreeWalk treeWalk = new TreeWalk(repo);
+				treeWalk.addTree(tree);
+				treeWalk.setRecursive(false);
+				while (treeWalk.next()) {
+				    if (treeWalk.isSubtree()) {
+				        System.out.println("dir: " + treeWalk.getPathString());
+				        treeWalk.enterSubtree();
+				    } else {
+				        System.out.println("file: " + treeWalk.getPathString());
+				    }
 				}
+//				byte[] treeBuf = treeWalk;
+//				String treeInfo= new String(treeBuf);
+				
+				
+				System.out.println(treeWalk.getDepth());
+				
+				
+//				 System.out.println("*******************************");
+//				 String commitInfo = new String(commitInfoBytes);
+//				 
+//				 System.out.println("Commit's Text: \n" + commitInfo );
+//
+//				 
+//				 String treeInfo= new String(treeInfoBytes);
+//				 
+//				 
+//				 System.out.println("Commit's Tree: \n" + treeInfo );
+//				
+				 
+				 
+				 
+				 
+				System.out.println("*******************************");
+				System.out.println("*******************************");
+				System.out.println("*******************************");
+				System.out.println("*******************************");
+				
+				
+				
+				
+//				System.out.println(targetCommit.getRawBuffer());
+//				System.out.println(targetCommit.getTree());
+				
+				
 				
 
 				if (foundInThisBranch) {
@@ -79,7 +139,9 @@ public class PageCommit {
 			}
 		}
 		System.out.println("______________________________________________________________");
-		
+		System.out.println("______________________________________________________________");
+		System.out.println("______________________________________________________________");
+			
 		ObjectId oldHead = repo.resolve("HEAD^^^{tree}");
 		
 		System.out.println(oldHead);
@@ -87,7 +149,7 @@ public class PageCommit {
 		ObjectId head = repo.resolve("HEAD^{tree}");
 		
 		System.out.println(head);
-		
+/*		
 
 		
 		
@@ -104,8 +166,9 @@ public class PageCommit {
 		
 	
 		System.out.println("______________________________________________________________");
+		System.out.println("______________________________________________________________");
 		for(DiffEntry dif: diffs){
 			System.out.println(dif.toString());
-		}
+		}*/
 	}
 }
