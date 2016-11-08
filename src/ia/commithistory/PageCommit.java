@@ -72,15 +72,12 @@ public class PageCommit {
 				treeWalk.setRecursive(false);
 				while (treeWalk.next()) {
 				    if (treeWalk.isSubtree()) {
-				        System.out.println("dir: " + treeWalk.getPathString());
+//				        System.out.println("dir: " + treeWalk.getPathString());
 				        treeWalk.enterSubtree();
 				    } else {
 				        System.out.println("file: " + treeWalk.getPathString());
 				    }
 				}
-//				byte[] treeBuf = treeWalk;
-//				String treeInfo= new String(treeBuf);
-				
 				
 				System.out.println(treeWalk.getDepth());
 				
@@ -102,12 +99,7 @@ public class PageCommit {
 				 
 				System.out.println("*******************************");
 				System.out.println("*******************************");
-				System.out.println("*******************************");
-				System.out.println("*******************************");
-				
-				
-				
-				
+
 //				System.out.println(targetCommit.getRawBuffer());
 //				System.out.println(targetCommit.getTree());
 				
@@ -131,7 +123,7 @@ public class PageCommit {
 //					System.out.println("Commited Date: " + new Date(commit.getCommitTime()));
 //					System.out.println("Commited Message: "+ commit.getFullMessage());
 //					System.out.println("Time zone: " + authorTimeZone);
-//					System.out.println("Date : " + authorDate);
+					System.out.println("Date : " + authorDate);
 //					System.out.println("Commiter: " + committerIdent);
 					
 					
@@ -150,9 +142,6 @@ public class PageCommit {
 		
 		System.out.println(head);
 /*		
-
-		
-		
 
 		ObjectReader reader = repo.newObjectReader();
 		CanonicalTreeParser oldTreeIter = new CanonicalTreeParser();
