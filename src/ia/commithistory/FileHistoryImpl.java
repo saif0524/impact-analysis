@@ -18,7 +18,6 @@ public class FileHistoryImpl implements IFileHistory {
 		this.authorName = authorName;
 	}
 
-
 	@Override
 	public File getFile() throws Exception {
 		return file;
