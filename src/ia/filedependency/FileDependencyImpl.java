@@ -11,12 +11,13 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 
 public class FileDependencyImpl implements IFileDependency {
 
 	private List<File> fileList;
 
-	private List<String> methodList;
+	private List<String> methodList = new ArrayList<String>();
 
 	public List<File> getfileList() {
 		return fileList;
@@ -33,31 +34,43 @@ public class FileDependencyImpl implements IFileDependency {
 			getListOfAllMethods(file);
 
 		}
-	}
+		
+		for (File file : fileList) {
+			System.out.println("Readnig file: " + file.getName());
+			getDpendency(file);
+		}
 
-	private void getListOfAllMethods(File file) {
+	}
+	private void getDpendency(File file) {
 		BufferedReader bufferedReader = null;
 		try {
-
-			CompilationUnit cu = getMethods(file);
-
-			MethodVisitor visitor = new MethodVisitor();
-			visitor.visit(cu, null);
-
-//			System.out.println("+++++" + cu + "+++++");
-
+			
 			bufferedReader = new BufferedReader(new FileReader(file));
-			// String line = null;
-			// while((line = bufferedReader.readLine()) != null){
-			// System.out.println(line);
-			// }
-			// System.out.println("Reading Complete");
-			// System.out.println("****************************************");
+			String line = null;
+			while ((line = bufferedReader.readLine()) != null) {
+				
+				
+				StringTokenizer st = new StringTokenizer(line);  
+			     while (st.hasMoreTokens()) {  
+			         System.out.println("token:  " + st.nextToken());  
+			     }				
+//				System.out.println(line);
+			}
+			System.out.println("Reading Complete");
+			System.out.println("****************************************");
 			bufferedReader.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
+
+	private void getListOfAllMethods(File file) {
+		CompilationUnit cu = getMethods(file);
+		MethodVisitor visitor = new MethodVisitor();
+		visitor.visit(cu, null);
+
+	}
+
 
 	private CompilationUnit getMethods(File javaFile) {
 		CompilationUnit cu = null;
@@ -69,13 +82,6 @@ public class FileDependencyImpl implements IFileDependency {
 		return cu;
 	}
 
-	private class MethodVisitor extends VoidVisitorAdapter {
-		public void visit(MethodDeclaration method, Object arg) {
-
-			System.out.println("Visitor: " + method.getName());
-		}
-	}
-
 	public List<String> getMethodList() {
 		return methodList;
 	}
@@ -84,4 +90,10 @@ public class FileDependencyImpl implements IFileDependency {
 		this.methodList = methodList;
 	}
 
+	private class MethodVisitor extends VoidVisitorAdapter {
+		public void visit(MethodDeclaration method, Object arg) {
+			methodList.add(method.getName());
+
+		}
+	}
 }
