@@ -76,7 +76,9 @@ public class FileDependencyImpl implements IFileDependency {
 		CompilationUnit compileUnit = null;
 		try {
 			compileUnit = JavaParser.parse(javaFile);
-		} catch (japa.parser.ParseException | IOException e) {
+		} catch (japa.parser.ParseException e) {
+			e.printStackTrace();
+		}catch(IOException e){
 			e.printStackTrace();
 		}
 		return compileUnit;

@@ -13,7 +13,10 @@ import javax.swing.JFileChooser;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.diff.DiffEntry;
+import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
@@ -21,7 +24,9 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepository;
+import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.TreeWalk;
+import org.eclipse.jgit.util.io.DisabledOutputStream;
 
 public class CommitParser {
 
@@ -80,6 +85,30 @@ public class CommitParser {
 				FileDependencyImpl fileDependency = new FileDependencyImpl();
 				
 				List<File> fileList = new ArrayList<File>();
+				ObjectId currentHead = repo.resolve("HEAD^{tree}");
+				ObjectId oldHead = repo.resolve("HEAD~7^{tree}");
+				
+				ObjectReader reader = repo.newObjectReader();
+				CanonicalTreeParser oldTreeIter = new CanonicalTreeParser();
+				oldTreeIter.reset(reader, oldHead);
+				CanonicalTreeParser newTreeIter = new CanonicalTreeParser();
+				newTreeIter.reset(reader, currentHead);
+				List<DiffEntry> diffs= git.diff()
+						.setNewTree(newTreeIter)
+						.setOldTree(oldTreeIter)
+						.call();
+				
+				for(DiffEntry dif: diffs){
+					System.out.println(dif.getNewPath());
+		    		if(dif.getNewPath().contains(".java")){
+						File file = new File(dif.getNewPath());
+			    		fileList.add(file);
+		    		}
+				}
+
+				fileDependency.getFileDependency(fileList);
+				
+/*Parse commit				
 				
 //				http://stackoverflow.com/questions/19941597/jgit-use-treewalk-to-list-files-and-folders
 				RevTree tree = commit.getTree();
@@ -92,29 +121,22 @@ public class CommitParser {
 //				        System.out.println("dir: " + treeWalk.getPathString());
 				        treeWalk.enterSubtree();
 				    } else {
-//				        System.out.println("file: " + treeWalk.getPathString());
-				    	if(treeWalk.getPathString().contains(".java"))
+				        System.out.println("file: " + treeWalk.getPathString());				    	if(treeWalk.getPathString().contains(".java"))
 				    	{   
 				    		File file = new File(treeWalk.getPathString());
 				    		fileList.add(file);
 				    	}				    	
-				        
+				
+			
 				    }
 				}
+ */				        
 //				fileDependency.setfileList(fileList);
 
 /*				for(File file: fileList){
 					System.out.println(file.getName());
 				}
 */				
-				
-				fileDependency.getFileDependency(fileList);
-				
-				
-				
-				
-				
-				
 				
 				
 				
@@ -164,23 +186,29 @@ public class CommitParser {
 		
 		
 		
-		/*		
-
-		ObjectReader reader = repo.newObjectReader();
+		
+		/*
+		ObjectReader reader = git.getRepository().newObjectReader();
 		CanonicalTreeParser oldTreeIter = new CanonicalTreeParser();
-		oldTreeIter.reset(reader, oldHead);
+		ObjectId oldTree = git.getRepository().resolve( "HEAD^{tree}" );
+		oldTreeIter.reset( reader, oldTree );
 		CanonicalTreeParser newTreeIter = new CanonicalTreeParser();
-		newTreeIter.reset(reader, head);
-		List<DiffEntry> diffs= git.diff()
-		                    .setNewTree(newTreeIter)
-		                    .setOldTree(oldTreeIter)
-		                    .call();
+		ObjectId newTree = git.getRepository().resolve( "HEAD~1^{tree}" );
+		newTreeIter.reset( reader, newTree );
+
+		DiffFormatter diffFormatter = new DiffFormatter( DisabledOutputStream.INSTANCE );
+		diffFormatter.setRepository( git.getRepository() );
+		List<DiffEntry> entries = diffFormatter.scan( oldTreeIter, newTreeIter );
+
+		for( DiffEntry entry : entries ) {
+		  System.out.println( entry.getChangeType() );
+		}
+		
+		
+		*/
 		
 	
-		System.out.println("______________________________________________________________");
-		System.out.println("______________________________________________________________");
-		for(DiffEntry dif: diffs){
-			System.out.println(dif.toString());
-		}*/
+		
+ 	
 	}
 }
