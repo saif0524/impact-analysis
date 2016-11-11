@@ -25,7 +25,9 @@ public class HistoryImpl implements IHistory{
 	
 	
 	public void addHistoryFile(IFileHistory historyFile){
-        if(listHistoryFiles==null) listHistoryFiles = new ArrayList<>();
+        if(listHistoryFiles==null){
+        	listHistoryFiles = new ArrayList<IFileHistory>();
+        }
         listHistoryFiles.add(historyFile);
     }
 

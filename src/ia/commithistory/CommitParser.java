@@ -1,6 +1,10 @@
 package ia.commithistory;
 
+import ia.filedependency.FileDependencyImpl;
+
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -19,7 +23,7 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepository;
 import org.eclipse.jgit.treewalk.TreeWalk;
 
-public class PageCommit {
+public class CommitParser {
 
 	public static void main(String[] args) throws IOException, GitAPIException {
 		
@@ -73,6 +77,9 @@ public class PageCommit {
 			
 //				 byte[] commitInfoBytes = targetCommit.getRawBuffer();
 
+				FileDependencyImpl fileDependency = new FileDependencyImpl();
+				
+				List<File> fileList = new ArrayList<File>();
 				
 //				http://stackoverflow.com/questions/19941597/jgit-use-treewalk-to-list-files-and-folders
 				RevTree tree = commit.getTree();
@@ -85,11 +92,34 @@ public class PageCommit {
 //				        System.out.println("dir: " + treeWalk.getPathString());
 				        treeWalk.enterSubtree();
 				    } else {
-				        System.out.println("file: " + treeWalk.getPathString());
+//				        System.out.println("file: " + treeWalk.getPathString());
+				    	if(treeWalk.getPathString().contains(".java"))
+				    	{   
+				    		File file = new File(treeWalk.getPathString());
+				    		fileList.add(file);
+				    	}				    	
+				        
 				    }
 				}
+//				fileDependency.setfileList(fileList);
+
+/*				for(File file: fileList){
+					System.out.println(file.getName());
+				}
+*/				
 				
-				System.out.println(treeWalk.getDepth());
+				fileDependency.getFileDependency(fileList);
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
 				
 				
 //				 System.out.println("*******************************");
@@ -104,28 +134,17 @@ public class PageCommit {
 //				 System.out.println("Commit's Tree: \n" + treeInfo );
 //				
 				 
-				 
-				 
-				 
 				System.out.println("*******************************");
 				System.out.println("*******************************");
 
-//				System.out.println(targetCommit.getRawBuffer());
-//				System.out.println(targetCommit.getTree());
 				
-				
-				
-
+/*				
 				if (foundInThisBranch) {
-				
-					
 					PersonIdent authorIdent = commit.getAuthorIdent();
 					Date authorDate = authorIdent.getWhen();
 					TimeZone authorTimeZone = authorIdent.getTimeZone();
 
 					PersonIdent committerIdent = commit.getCommitterIdent();
-					
-					
 					
 					System.out.println("Info");
 					System.out.println("Commit name/ID: " + commit.getName());
@@ -138,20 +157,14 @@ public class PageCommit {
 					
 					
 				}
+ */
 			}
 		}
-		System.out.println("______________________________________________________________");
-		System.out.println("______________________________________________________________");
-		System.out.println("______________________________________________________________");
-			
-		ObjectId oldHead = repo.resolve("HEAD^^^{tree}");
+
 		
-		System.out.println(oldHead);
 		
-		ObjectId head = repo.resolve("HEAD^{tree}");
 		
-		System.out.println(head);
-/*		
+		/*		
 
 		ObjectReader reader = repo.newObjectReader();
 		CanonicalTreeParser oldTreeIter = new CanonicalTreeParser();

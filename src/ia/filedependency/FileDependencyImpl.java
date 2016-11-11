@@ -32,29 +32,30 @@ public class FileDependencyImpl implements IFileDependency {
 		for (File file : fileList) {
 			System.out.println("Readnig file: " + file.getName());
 			getListOfAllMethods(file);
+			System.out.println("Methodlist: ");
+			System.out.println(this.getMethodList());
 
 		}
-		
-		for (File file : fileList) {
-			System.out.println("Readnig file: " + file.getName());
-			getDpendency(file);
-		}
+//		for (File file : fileList) {
+//			System.out.println("Readnig file: " + file.getName());
+//			getDpendency(file);
+//		}
 
 	}
+
 	private void getDpendency(File file) {
 		BufferedReader bufferedReader = null;
 		try {
-			
+
 			bufferedReader = new BufferedReader(new FileReader(file));
 			String line = null;
 			while ((line = bufferedReader.readLine()) != null) {
-				
-				
-				StringTokenizer st = new StringTokenizer(line);  
-			     while (st.hasMoreTokens()) {  
-			         System.out.println("token:  " + st.nextToken());  
-			     }				
-//				System.out.println(line);
+
+				StringTokenizer st = new StringTokenizer(line);
+				while (st.hasMoreTokens()) {
+					System.out.println("token:  " + st.nextToken());
+				}
+				// System.out.println(line);
 			}
 			System.out.println("Reading Complete");
 			System.out.println("****************************************");
@@ -64,22 +65,21 @@ public class FileDependencyImpl implements IFileDependency {
 		}
 	}
 
-	private void getListOfAllMethods(File file) {
-		CompilationUnit cu = getMethods(file);
+	private void getListOfAllMethods(File javaFile) {
+		CompilationUnit compileUnit = getMethods(javaFile);
 		MethodVisitor visitor = new MethodVisitor();
-		visitor.visit(cu, null);
+		visitor.visit(compileUnit, null);
 
 	}
 
-
 	private CompilationUnit getMethods(File javaFile) {
-		CompilationUnit cu = null;
+		CompilationUnit compileUnit = null;
 		try {
-			cu = JavaParser.parse(javaFile);
+			compileUnit = JavaParser.parse(javaFile);
 		} catch (japa.parser.ParseException | IOException e) {
 			e.printStackTrace();
 		}
-		return cu;
+		return compileUnit;
 	}
 
 	public List<String> getMethodList() {
@@ -96,4 +96,22 @@ public class FileDependencyImpl implements IFileDependency {
 
 		}
 	}
+
+	public static void main(String[] args){
+		
+		FileDependencyImpl fileDependency = new FileDependencyImpl();
+		
+		List<File> fileList = new ArrayList<File>();
+		
+		File file1 = new File("D:/Academics/8th_Semester/801 Project/Workspace/java-blog-aggregator/src/main/java/cz/jiripinkas/jba/controller/AdminController.java");
+		File file2 = new File("D:/Academics/8th_Semester/801 Project/Workspace/java-blog-aggregator/src/main/java/cz/jiripinkas/jba/controller/RegisterController.java");
+		fileList.add(file1);
+		fileList.add(file2);
+		
+		
+//		fileDependency.setfileList(fileList);
+		
+		fileDependency.getFileDependency(fileList);
+	}
 }
+
