@@ -7,6 +7,8 @@ import japa.parser.ast.body.MethodDeclaration;
 import japa.parser.ast.expr.BinaryExpr;
 import japa.parser.ast.expr.Expression;
 import japa.parser.ast.expr.MethodCallExpr;
+import japa.parser.ast.stmt.BlockStmt;
+import japa.parser.ast.stmt.Statement;
 import japa.parser.ast.visitor.VoidVisitorAdapter;
 
 import java.io.BufferedReader;
@@ -16,7 +18,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 public class FileDependencyImpl implements IFileDependency {
@@ -24,6 +28,10 @@ public class FileDependencyImpl implements IFileDependency {
 	private List<File> fileList;
 
 	private List<String> methodList = new ArrayList<String>();
+
+	private Map<String, String> fileMatrix = new HashMap<String, String>();
+
+	private int[][] adjacencyMatrix;
 
 	public List<File> getfileList() {
 		return fileList;
@@ -35,22 +43,80 @@ public class FileDependencyImpl implements IFileDependency {
 
 	@Override
 	public void getFileDependency(List<File> fileList) {
+
+		int[][] matrix = new int[fileList.size()][fileList.size()];
+
+		this.setAdjacencyMatrix(matrix);
+
+		this.setfileList(fileList);
+		Map<String, List<String>> classMap = new HashMap<String, List<String>>();
+
 		for (File file : fileList) {
-			System.out.println("Readnig file: " + file.getName());
-			getListOfAllMethods(file);
-			System.out.println("Methodlist: ");
-			System.out.println(this.getMethodList());
 
+			List<File> tempFileileList = new ArrayList<File>(fileList);
 
-			try {
-				getFunctionCalls(file);
-			} catch (ParseException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
+			String originalFile = file.getAbsoluteFile().toString();
+
+			tempFileileList.remove(file);
+
+			List<String> functionCallsFromThisFile = new ArrayList<String>();
+
+			List<String> methodListOfComparingFile = new ArrayList<String>();
+
+			List<String> classSet = new ArrayList<String>();
+
+			for (int i = 0; i < tempFileileList.size(); i++) {
+				// list function calls
+
+				try {
+					System.out.println("Original file: " + file.getName());
+					functionCallsFromThisFile = getFunctionCalls(file);
+					// System.out.println("Method calls: "
+					// + functionCallsFromThisFile);
+				} catch (ParseException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+
+				String comparedToFileName = tempFileileList.get(i)
+						.getAbsoluteFile().toString();
+
+				System.out.println("File compared with: " + comparedToFileName);
+
+				methodListOfComparingFile = getListOfMethods(tempFileileList
+						.get(i).getAbsoluteFile());
+
+				System.out.println("Methodlist: " + methodListOfComparingFile);
+				/*
+				 * BlockStmt methodBodies = new BlockStmt();
+				 * 
+				 * methodBodies = getBodyOfMethods(tempFileileList.get(i)
+				 * .getAbsoluteFile());
+				 * 
+				 * System.out.println("Method bodies: " + methodBodies);
+				 */
+				for (int j = 0; j < methodListOfComparingFile.size(); j++) {
+					if (!(functionCallsFromThisFile.isEmpty())
+							&& functionCallsFromThisFile
+									.contains(methodListOfComparingFile.get(j))) {
+						classSet.add(comparedToFileName);
+						break;
+					}
+				}
+
+				classMap.put(originalFile, classSet);
 			}
-			
+
 		}
+
+		for (Map.Entry<String, List<String>> entry : classMap.entrySet()) {
+			String key = entry.getKey();
+			List<String> values = entry.getValue();
+			System.out.println("Key = " + key);
+			System.out.println("Values = " + values + "\n");
+		}
+
 		// for (File file : fileList) {
 		// System.out.println("Readnig file: " + file.getName());
 		// getDpendency(file);
@@ -58,23 +124,24 @@ public class FileDependencyImpl implements IFileDependency {
 
 	}
 
-	private void getFunctionCalls(File file) throws ParseException, IOException{
-		 FileInputStream inputFile = new FileInputStream(file);
+	private List<String> getFunctionCalls(File file) throws ParseException,
+			IOException {
+		FileInputStream inputFile = new FileInputStream(file.getAbsoluteFile());
 
-	        CompilationUnit compilationUnit;
-	        try
-	        {
-	        	compilationUnit = JavaParser.parse(inputFile);
-	        }
-	        finally
-	        {
-	            inputFile.close();
-	        }
+		CompilationUnit compilationUnit;
+		try {
+			compilationUnit = JavaParser.parse(inputFile);
+		} finally {
+			inputFile.close();
+		}
 
-	        new MethodCallVisitor ().visit(compilationUnit, null);
+		MethodCallVisitor methodCall = new MethodCallVisitor();
+
+		methodCall.visit(compilationUnit, null);
+
+		return methodCall.getCalledFunctionList();
 	}
-	
-	
+
 	private void getDpendency(File file) {
 		BufferedReader bufferedReader = null;
 		try {
@@ -97,11 +164,20 @@ public class FileDependencyImpl implements IFileDependency {
 		}
 	}
 
-	private void getListOfAllMethods(File javaFile) {
+	private List<String> getListOfMethods(File javaFile) {
 		CompilationUnit compileUnit = getMethods(javaFile);
 		MethodDeclarationVisitor visitor = new MethodDeclarationVisitor();
 		visitor.visit(compileUnit, null);
 
+		return visitor.getDeclaredMethodList();
+	}
+
+	private BlockStmt getBodyOfMethods(File javaFile) {
+		CompilationUnit compileUnit = getMethods(javaFile);
+		MethodDeclarationVisitor visitor = new MethodDeclarationVisitor();
+		visitor.visit(compileUnit, null);
+
+		return visitor.getMethodList();
 	}
 
 	private CompilationUnit getMethods(File javaFile) {
@@ -120,25 +196,43 @@ public class FileDependencyImpl implements IFileDependency {
 		return methodList;
 	}
 
-	public void setMethodList(List<String> methodList) {
-		this.methodList = methodList;
-	}
-
-	
-	
 	private class MethodDeclarationVisitor extends VoidVisitorAdapter {
-		@Override
-		public void visit(MethodDeclaration method, Object arg) {
-			methodList.add(method.getName());
 
+		private List<String> declaredMethodList = new ArrayList<String>();
+		private BlockStmt methodBodyList = new BlockStmt();
+
+		public void visit(MethodDeclaration method, Object arg) {
+			declaredMethodList.add(method.getName());
+			this.methodBodyList = method.getBody();
+		}
+
+		public List<String> getDeclaredMethodList() {
+			return declaredMethodList;
+		}
+
+		public void setDeclaredMethodList(List<String> declaredMethodList) {
+			this.declaredMethodList = declaredMethodList;
+		}
+
+		public BlockStmt getMethodList() {
+			return methodBodyList;
+		}
+
+		public void setMethodList(BlockStmt methodList) {
+			this.methodBodyList = methodList;
 		}
 	}
-	
-	
+
 	private class MethodCallVisitor extends VoidVisitorAdapter {
+
+		private List<String> calledFunctionList = new ArrayList<String>();
+
 		@Override
 		public void visit(MethodCallExpr methodCall, Object arg) {
-			System.out.print("Method call: " + methodCall.getName() + "\n");
+			// System.out.print("Method call: " + methodCall.getName() + "\n");
+
+			calledFunctionList.add(methodCall.getName());
+
 			List<Expression> args = methodCall.getArgs();
 			if (args != null)
 				handleExpressions(args);
@@ -155,6 +249,22 @@ public class FileDependencyImpl implements IFileDependency {
 				}
 			}
 		}
+
+		public List<String> getCalledFunctionList() {
+			return calledFunctionList;
+		}
+
+		public void setCalledFunctionList(List<String> calledFunctionList) {
+			this.calledFunctionList = calledFunctionList;
+		}
+	}
+
+	public int[][] getAdjacencyMatrix() {
+		return adjacencyMatrix;
+	}
+
+	public void setAdjacencyMatrix(int[][] matrix) {
+		this.adjacencyMatrix = matrix;
 	}
 
 	public static void main(String[] args) {
@@ -164,11 +274,20 @@ public class FileDependencyImpl implements IFileDependency {
 		List<File> fileList = new ArrayList<File>();
 
 		File file1 = new File(
-				"D:/Academics/8th_Semester/801 Project/Workspace/java-blog-aggregator/src/main/java/cz/jiripinkas/jba/controller/AdminController.java");
+				"D:/Academics/8th_Semester/801 Project/repo/dp-factory-pattern/src/factory/main/CoconutTree.java");
 		File file2 = new File(
-				"D:/Academics/8th_Semester/801 Project/Workspace/java-blog-aggregator/src/main/java/cz/jiripinkas/jba/controller/RegisterController.java");
+				"D:/Academics/8th_Semester/801 Project/repo/dp-factory-pattern/src/factory/main/FactoryMain.java");
+		File file3 = new File(
+				"D:/Academics/8th_Semester/801 Project/repo/dp-factory-pattern/src/factory/main/ITree.java");
+		File file4 = new File(
+				"D:/Academics/8th_Semester/801 Project/repo/dp-factory-pattern/src/factory/main/MangoTree.java");
+		File file5 = new File(
+				"D:/Academics/8th_Semester/801 Project/repo/dp-factory-pattern/src/factory/main/TreeFactory.java");
 		fileList.add(file1);
 		fileList.add(file2);
+		fileList.add(file3);
+		fileList.add(file4);
+		fileList.add(file5);
 
 		fileDependency.getFileDependency(fileList);
 	}

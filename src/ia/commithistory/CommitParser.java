@@ -5,40 +5,32 @@ import ia.filedependency.FileDependencyImpl;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
+import java.util.Scanner;
 
 import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileFilter;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
-import org.eclipse.jgit.diff.DiffFormatter;
-import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
-import org.eclipse.jgit.lib.PersonIdent;
-import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevTree;
-import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepository;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
-import org.eclipse.jgit.treewalk.TreeWalk;
-import org.eclipse.jgit.util.io.DisabledOutputStream;
 
 public class CommitParser {
 
 	public static void main(String[] args) throws IOException, GitAPIException {
 
 		JFileChooser chooser = new JFileChooser();
-		chooser.setCurrentDirectory(new java.io.File("."));
+		chooser.setCurrentDirectory(new java.io.File("/home"));
 		chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
 		int returnVal = chooser.showOpenDialog(null);
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
+
+		if ((returnVal == JFileChooser.APPROVE_OPTION)) {
 			System.out.println("You chose to open this file: "
 					+ chooser.getSelectedFile().getName());
 
@@ -46,44 +38,43 @@ public class CommitParser {
 
 		Repository repo = new FileRepository(chooser.getSelectedFile());
 		Git git = new Git(repo);
-//		RevWalk walk = new RevWalk(repo);
+		// RevWalk walk = new RevWalk(repo);
 
 		FileDependencyImpl fileDependency = new FileDependencyImpl();
 
 		List<File> fileList = new ArrayList<File>();
 		ObjectId currentHead = repo.resolve("HEAD^{tree}");
-		
-		System.out.println(currentHead);
-		ObjectId oldHead = repo.resolve("HEAD~7^{tree}");
-		System.out.println(oldHead.getName());
 
+		System.out.println("Current head: " + currentHead);
 
-		
+		Scanner sc = new Scanner(System.in);
+
+		System.out.println("Enter Old head:  ");
+		int headNum = sc.nextInt();
+
+		ObjectId oldHead = repo.resolve("HEAD~" + headNum + "^{tree}");
+		System.out.println("Old head:  " + oldHead);
+
 		ObjectReader headReader = repo.newObjectReader();
-		
+
 		CanonicalTreeParser oldTreeIter = new CanonicalTreeParser();
 		oldTreeIter.reset(headReader, oldHead);
 
 		CanonicalTreeParser newTreeIter = new CanonicalTreeParser();
-		
+
 		newTreeIter.reset(headReader, currentHead);
-		
+
 		List<DiffEntry> diffEntries = git.diff().setNewTree(newTreeIter)
 				.setOldTree(oldTreeIter).call();
 
-		for (DiffEntry entry : diffEntries) {
-			System.out.println(entry.getNewPath());
-			if (entry.getNewPath().contains(".java")) {
-				File file = new File(entry.getNewPath());
-				fileList.add(file);
-			}
-		}
+		DifferentEntry listOfChangedFiles = new DifferentEntry();
+
+		fileList = listOfChangedFiles.createListOfEntries(repo, diffEntries);
 
 		fileDependency.getFileDependency(fileList);
 
 		/****************
-		 * Parse commit of all the branches 
-		 * List<Ref> branches =
+		 * Parse commit of all the branches List<Ref> branches =
 		 * git.branchList().call(); for (Ref branch : branches) { String
 		 * branchName = branch.getName();
 		 * 
@@ -93,8 +84,7 @@ public class CommitParser {
 		 * /************ Iterable<RevCommit> commits = git.log().all().call();
 		 * 
 		 * 
-		 * Parse commit 
-		 * for (RevCommit commit : commits) { boolean
+		 * Parse commit for (RevCommit commit : commits) { boolean
 		 * foundInThisBranch = false;
 		 * 
 		 * RevCommit targetCommit = walk.parseCommit(repo.resolve(commit
@@ -135,4 +125,5 @@ public class CommitParser {
 		 * System.out.println("Commiter: " + committerIdent); } } }
 		 *****************************/
 	}
+
 }
