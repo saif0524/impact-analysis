@@ -69,7 +69,7 @@ public class FileDependencyImpl implements IFileDependency {
 				// list function calls
 
 				try {
-					System.out.println("Original file: " + file.getName());
+//					System.out.println("Original file: " + file.getName());
 					functionCallsFromThisFile = getFunctionCalls(file);
 					// System.out.println("Method calls: "
 					// + functionCallsFromThisFile);
@@ -82,12 +82,12 @@ public class FileDependencyImpl implements IFileDependency {
 				String comparedToFileName = tempFileileList.get(i)
 						.getAbsoluteFile().toString();
 
-				System.out.println("File compared with: " + comparedToFileName);
+//				System.out.println("File compared with: " + comparedToFileName);
 
 				methodListOfComparingFile = getListOfMethods(tempFileileList
 						.get(i).getAbsoluteFile());
 
-				System.out.println("Methodlist: " + methodListOfComparingFile);
+//				System.out.println("Methodlist: " + methodListOfComparingFile);
 				/*
 				 * BlockStmt methodBodies = new BlockStmt();
 				 * 
@@ -113,9 +113,11 @@ public class FileDependencyImpl implements IFileDependency {
 		for (Map.Entry<String, List<String>> entry : classMap.entrySet()) {
 			String key = entry.getKey();
 			List<String> values = entry.getValue();
-			System.out.println("Key = " + key);
-			System.out.println("Values = " + values + "\n");
-		}
+			if(!values.isEmpty()){
+			
+			System.out.println("Class name = " + key);
+			System.out.println("Other classes  = " + values + "\n");
+		}}
 
 		// for (File file : fileList) {
 		// System.out.println("Readnig file: " + file.getName());
