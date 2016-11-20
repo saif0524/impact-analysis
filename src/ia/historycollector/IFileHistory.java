@@ -5,12 +5,12 @@ import java.util.Calendar;
 
 public interface IFileHistory {
 
-    public File getFile() throws Exception;
+	public File getFile() throws Exception;
 
-    public String getAuthor();
+	public String getAuthor();
 
-    public String getComment();
+	public String getComment();
 
-    public Calendar getCommitDate();
+	public Calendar getCommitDate();
 
 }

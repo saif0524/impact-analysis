@@ -1,6 +1,6 @@
 package ia.changecollector;
 
-import ia.filedependency.FileDependencyImpl;
+import ia.dependencyresolver.ClassDependencyImpl;
 import ia.sourcecodeparser.ClassFile;
 import ia.sourcecodeparser.Parser;
 
@@ -29,42 +29,44 @@ public class CommitParser {
 
 		List<DiffEntry> diffEntries = changeCollector.compareTrees(repo);
 
-		FileDependencyImpl fileDependency = new FileDependencyImpl();
+		ClassDependencyImpl fileDependency = new ClassDependencyImpl();
 
 		List<File> fileList = new ArrayList<File>();
 
 		fileList = changeCollector.createListOfEntries(repo, diffEntries);
 
 		List<ClassFile> classList = new ArrayList<ClassFile>();
-		
+
 		Parser classParser = new Parser(fileList);
-		
-		
+
 		classList = classParser.createClassCard(fileList);
-		System.out.println("*******************************************************************");
-		for(ClassFile cf:classList){
+		System.out
+				.println("*******************************************************************");
+		for (ClassFile cf : classList) {
 			System.out.println("Classname: " + cf.getClassNAme());
-			System.out.println("________________________________________________________________");
+			System.out
+					.println("________________________________________________________________");
 			System.out.println("Methods: ");
-			for(int i=0;i<cf.getMethodList().size();i++){
+			for (int i = 0; i < cf.getMethodList().size(); i++) {
 				System.out.println(cf.getMethodList().get(i));
 			}
-			System.out.println("________________________________________________________________");
+			System.out
+					.println("________________________________________________________________");
 			System.out.println("Functioncalls: ");
-			for(int i=0;i<cf.getFunctionCallList().size();i++){
+			for (int i = 0; i < cf.getFunctionCallList().size(); i++) {
 				System.out.println(cf.getFunctionCallList().get(i));
 			}
-			
-			System.out.println("*******************************************************************");
+
+			System.out
+					.println("*******************************************************************");
 		}
-		
-		
-		HashMap<String, HashSet<String>> classMap = fileDependency.getFileDependency(fileList);
-		
-		
+
+		HashMap<String, HashSet<String>> classMap = fileDependency
+				.getFileDependency(fileList);
+
 		System.out.println("88888888888888888888888888888888888888888888888");
 		fileDependency.printDependency(classMap);
-		
+
 	}
 
 }

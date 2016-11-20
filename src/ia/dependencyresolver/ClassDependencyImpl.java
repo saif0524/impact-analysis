@@ -1,4 +1,4 @@
-package ia.filedependency;
+package ia.dependencyresolver;
 
 import ia.sourcecodeparser.ClassFile;
 import ia.sourcecodeparser.Parser;
@@ -22,11 +22,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-public class FileDependencyImpl implements IFileDependency {
+public class ClassDependencyImpl implements IClassDependency {
 
 	private List<File> fileList;
 
@@ -108,15 +109,14 @@ public class FileDependencyImpl implements IFileDependency {
 					if (!(functionCallsFromThisFile.isEmpty())
 							&& functionCallsFromThisFile
 									.contains(methodListOfComparingFile.get(j))) {
-						if (classHashMap.get(comparedToFileName) != null) {
-							classHashMap.get(comparedToFileName).add(
-									originalFile);
-						} else {
+						if (classHashMap.get(comparedToFileName) == null) {
 							classHashMap.put(comparedToFileName,
 									new HashSet<String>());
 							classHashMap.get(comparedToFileName).add(
 									originalFile);
-						}
+						} else
+							classHashMap.get(comparedToFileName).add(
+									originalFile);
 						// map.add(comparedToFileName);
 						break;
 					}
@@ -137,13 +137,16 @@ public class FileDependencyImpl implements IFileDependency {
 			HashSet<String> values = entry.getValue();
 			if (!values.isEmpty()) {
 
-				System.out.println(key+"\n");
-				System.out.println("---------------------------------------------------------------------------------------------\n");
-				for (int i = 0; i < values.size(); i++) {
-					System.out.println(values.iterator().next() + "\n");
+				System.out.println(key + "\n");
+				Iterator<String> iterator = values.iterator();
+				System.out
+						.println("---------------------------------------------------------------------------------------------\n");
+				while (iterator.hasNext()) {
+					System.out.println(iterator.next() + "\n");
 				}
-				
-				System.out.println("*********************************************************************************");
+
+				System.out
+						.println("*********************************************************************************");
 			}
 		}
 
@@ -151,7 +154,7 @@ public class FileDependencyImpl implements IFileDependency {
 
 	public static void main(String[] args) {
 
-		FileDependencyImpl fileDependency = new FileDependencyImpl();
+		ClassDependencyImpl fileDependency = new ClassDependencyImpl();
 
 		List<File> fileList = new ArrayList<File>();
 

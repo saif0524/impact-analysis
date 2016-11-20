@@ -30,9 +30,8 @@ public class ChangeCollector {
 		List<DiffEntry> diffEntries = null;
 		setCurrentHead(repo.resolve("HEAD^{tree}"));
 
-		
-		//Takes old head number
-		
+		// Takes old head number
+
 		int oldHeadNumber = Integer.parseInt(JOptionPane
 				.showInputDialog("Enter old head"));
 

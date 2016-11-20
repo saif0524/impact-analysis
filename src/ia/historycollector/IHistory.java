@@ -5,8 +5,8 @@ import java.util.List;
 
 public interface IHistory {
 
-    public File getCurrentFile() throws Exception;
+	public File getCurrentFile() throws Exception;
 
-    public List<IFileHistory> getHistoryFiles() throws Exception;
+	public List<IFileHistory> getHistoryFiles() throws Exception;
 
 }

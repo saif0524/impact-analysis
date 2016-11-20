@@ -2,7 +2,7 @@ package ia.gui;
 
 import ia.changecollector.ChangeCollector;
 import ia.changecollector.RepositoryReader;
-import ia.filedependency.FileDependencyImpl;
+import ia.dependencyresolver.ClassDependencyImpl;
 import ia.sourcecodeparser.ClassFile;
 import ia.sourcecodeparser.Parser;
 
@@ -48,7 +48,7 @@ public class MainFrame extends JFrame {
 
 	Repository repo;
 	ChangeCollector changeCollector;
-	FileDependencyImpl fileDependency;
+	ClassDependencyImpl fileDependency;
 	List<File> fileList;
 	List<DiffEntry> diffEntries;
 
@@ -63,14 +63,13 @@ public class MainFrame extends JFrame {
 	public MainFrame() {
 		super();
 		setTitle("Impact Analysis");
-
-		setLayout(new GridLayout());
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		// setLayout(null);
+		jp.setLayout(new GridLayout());
+
+		this.add(jp);
 		menuBarCreator();
 		// addTextField();
 
-		// this.add(jp);
 		operationalMethod();
 
 		setVisible(true);
@@ -116,14 +115,6 @@ public class MainFrame extends JFrame {
 
 	}
 
-	private void addTextField() {
-
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		textarea = new JTextArea();
-		textarea.setBounds(0, 0, screenSize.width, screenSize.height - 100);
-		add(textarea);
-	}
-
 	public void operationalMethod() {
 		openRepo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -151,7 +142,7 @@ public class MainFrame extends JFrame {
 				} catch (GitAPIException e1) {
 					e1.printStackTrace();
 				}
-				fileDependency = new FileDependencyImpl();
+				fileDependency = new ClassDependencyImpl();
 
 				fileList = new ArrayList<File>();
 
@@ -196,7 +187,12 @@ public class MainFrame extends JFrame {
 			panel.add(scrollPane);
 		}
 
-		this.add(panel);
+		jp.removeAll();
+
+		jp.add(panel);
+
+		this.add(jp);
+
 		this.revalidate();
 	}
 
@@ -207,18 +203,30 @@ public class MainFrame extends JFrame {
 		layout.setVgap(10);
 		panel.setLayout(layout);
 
-		for (HashMap.Entry<String, HashSet<String>> cm : classMap
-				.entrySet()) {
+		for (HashMap.Entry<String, HashSet<String>> cm : classMap.entrySet()) {
 			DependencyResolver dr = new DependencyResolver(cm);
 			JScrollPane scrollPane = new JScrollPane(dr);
 			panel.add(scrollPane);
 			panel.add(scrollPane);
 		}
-		
 
+		jp.removeAll();
 
-		this.add(panel);
+		jp.repaint();
+
+		jp.add(panel);
+
+		this.add(jp);
+
 		this.revalidate();
+
+	}
+
+	private void addTextField() {
+
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		textarea = new JTextArea();
+		add(textarea);
 	}
 
 	public static void main(String[] args) {

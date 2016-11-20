@@ -24,26 +24,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-public class Parser{
+public class Parser {
 
 	private File file;
-	
-	private List<File> fileList;
 
+	private List<File> fileList;
 
 	private List<String> methodList = new ArrayList<String>();
 
-	
 	public Parser(List<File> fileList) {
 		this.fileList = fileList;
 	}
-	
-	public Parser(File file){
+
+	public Parser(File file) {
 		this.file = file;
 	}
 
-	
-	
 	public List<File> getfileList() {
 		return fileList;
 	}
