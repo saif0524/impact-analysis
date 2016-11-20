@@ -137,8 +137,13 @@ public class FileDependencyImpl implements IFileDependency {
 			HashSet<String> values = entry.getValue();
 			if (!values.isEmpty()) {
 
-				System.out.println("Class name = " + key);
-				System.out.println("Other classes  = " + values + "\n");
+				System.out.println(key+"\n");
+				System.out.println("---------------------------------------------------------------------------------------------\n");
+				for (int i = 0; i < values.size(); i++) {
+					System.out.println(values.iterator().next() + "\n");
+				}
+				
+				System.out.println("*********************************************************************************");
 			}
 		}
 

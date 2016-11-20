@@ -7,6 +7,8 @@ import ia.sourcecodeparser.Parser;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -57,7 +59,12 @@ public class CommitParser {
 		}
 		
 		
-//		fileDependency.getFileDependency(fileList);
+		HashMap<String, HashSet<String>> classMap = fileDependency.getFileDependency(fileList);
+		
+		
+		System.out.println("88888888888888888888888888888888888888888888888");
+		fileDependency.printDependency(classMap);
+		
 	}
 
 }

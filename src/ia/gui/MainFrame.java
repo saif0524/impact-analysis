@@ -21,6 +21,8 @@ import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 public class MainFrame extends JFrame {
@@ -34,10 +36,11 @@ public class MainFrame extends JFrame {
 	JMenuItem exit = new JMenuItem("Exit");
 
 	JMenuItem showChangedFiles = new JMenuItem("Files Only");
-	JMenuItem showClassCards = new JMenuItem("Class cards");
+	JMenuItem showClassCards = new JMenuItem("Class Cards");
 	JMenuItem showFunctionCalls = new JMenuItem("Files with Fuctioncalls");
 
-	JMenuItem dependencyLists = new JMenuItem("List file dependency");
+	JMenuItem dependencyLists = new JMenuItem("List Class Dependency");
+
 	JMenuItem generateDependencyGraph = new JMenuItem(
 			"Generate Dependency Graph");
 
@@ -52,7 +55,9 @@ public class MainFrame extends JFrame {
 	List<ClassFile> classList;
 
 	Parser classParserForFileList;
-	
+
+	HashMap<String, HashSet<String>> classMap;
+
 	JPanel jp = new JPanel();
 
 	public MainFrame() {
@@ -63,16 +68,14 @@ public class MainFrame extends JFrame {
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		// setLayout(null);
 		menuBarCreator();
-		//addTextField();
-		
-		
-		//this.add(jp);
+		// addTextField();
+
+		// this.add(jp);
 		operationalMethod();
 
 		setVisible(true);
-		
+
 		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
-		
 
 	}
 
@@ -155,20 +158,26 @@ public class MainFrame extends JFrame {
 				fileList = changeCollector.createListOfEntries(repo,
 						diffEntries);
 
-				fileDependency.getFileDependency(fileList);
+				classMap = fileDependency.getFileDependency(fileList);
 
-				
 				classParserForFileList = new Parser(fileList);
 				classList = classParserForFileList.createClassCard(fileList);
 			}
 		});
-		
-		
+
 		showClassCards.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				classCardViewer();
+			}
+		});
+
+		dependencyLists.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				dependecyViewer();
 			}
 		});
 
@@ -176,17 +185,38 @@ public class MainFrame extends JFrame {
 
 	public void classCardViewer() {
 		JPanel panel = new JPanel();
-		GridLayout layout = new GridLayout(0,3);
+		GridLayout layout = new GridLayout(0, 3);
 		layout.setHgap(10);
 		layout.setVgap(10);
 		panel.setLayout(layout);
-		
-		for(ClassFile cf: classList){		
+
+		for (ClassFile cf : classList) {
 			ClassCard cc = new ClassCard(cf);
 			JScrollPane scrollPane = new JScrollPane(cc);
 			panel.add(scrollPane);
 		}
+
+		this.add(panel);
+		this.revalidate();
+	}
+
+	public void dependecyViewer() {
+		JPanel panel = new JPanel();
+		GridLayout layout = new GridLayout(0, 3);
+		layout.setHgap(10);
+		layout.setVgap(10);
+		panel.setLayout(layout);
+
+		for (HashMap.Entry<String, HashSet<String>> cm : classMap
+				.entrySet()) {
+			DependencyResolver dr = new DependencyResolver(cm);
+			JScrollPane scrollPane = new JScrollPane(dr);
+			panel.add(scrollPane);
+			panel.add(scrollPane);
+		}
 		
+
+
 		this.add(panel);
 		this.revalidate();
 	}
