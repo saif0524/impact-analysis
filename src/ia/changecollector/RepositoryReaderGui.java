@@ -1,4 +1,4 @@
-package ia.commithistory;
+package ia.changecollector;
 
 import ia.examples.ExampleGui;
 

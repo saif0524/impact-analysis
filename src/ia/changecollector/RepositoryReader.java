@@ -1,4 +1,4 @@
-package ia.commithistory;
+package ia.changecollector;
 
 import java.io.IOException;
 
@@ -16,15 +16,15 @@ public class RepositoryReader {
 
 	private Git git;
 
-	public Repository getRepo() {
+	public Repository getRepository() {
 		return repository;
 	}
 
-	public void setRepo(Repository repo) {
+	public void setRepository(Repository repo) {
 		this.repository = repo;
 	}
 
-	public Repository repoReader() {
+	public Repository readRepo() {
 
 		JFileChooser chooser = new JFileChooser();
 		chooser.setCurrentDirectory(new java.io.File("/home"));
@@ -53,16 +53,15 @@ public class RepositoryReader {
 			Repository repo = new FileRepository(chooser.getSelectedFile());
 			Git git = new Git(repo);
 
-			setRepo(repo);
+			setRepository(repo);
 			setGit(git);
-			
-			
+
 		} catch (IOException e) {
 			e.printStackTrace();
 			return null;
 		}
 
-		return getRepo();
+		return getRepository();
 
 	}
 
@@ -74,13 +73,13 @@ public class RepositoryReader {
 		this.git = git;
 	}
 
-	
-	public static void main(String[] args) throws AmbiguousObjectException, IOException{
+	public static void main(String[] args) throws AmbiguousObjectException,
+			IOException {
 		RepositoryReader rd = new RepositoryReader();
-		
-		rd.repoReader();
-		ObjectId currentHead = rd.getRepo().resolve("HEAD^{tree}");
+
+		rd.readRepo();
+		ObjectId currentHead = rd.getRepository().resolve("HEAD^{tree}");
 		System.out.println(rd.getGit());
 		System.out.println("Current head: " + currentHead);
-	;}
+	}
 }

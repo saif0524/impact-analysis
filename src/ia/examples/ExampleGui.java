@@ -13,7 +13,7 @@ public class ExampleGui extends JFrame{
     public ExampleGui() {
         setJMenuBar(menuBar);
         setVisible(true);
-        setSize(400, 200);
+        setSize(500, 600);
         this.setTitle("Impact Analysis");
         
         menuBar.add(fileMenu);

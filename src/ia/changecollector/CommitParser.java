@@ -1,11 +1,14 @@
-package ia.commithistory;
+package ia.changecollector;
 
 import ia.filedependency.FileDependencyImpl;
+import ia.sourcecodeparser.ClassFile;
+import ia.sourcecodeparser.Parser;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.lib.Repository;
@@ -16,21 +19,45 @@ public class CommitParser {
 
 		RepositoryReader rr = new RepositoryReader();
 
-		rr.repoReader();
+		rr.readRepo();
 
-		Repository repo = rr.getRepo();
-
-		FileDependencyImpl fileDependency = new FileDependencyImpl();
-
-		List<File> fileList = new ArrayList<File>();
+		Repository repo = rr.getRepository();
 
 		ChangeCollector changeCollector = new ChangeCollector();
 
 		List<DiffEntry> diffEntries = changeCollector.compareTrees(repo);
 
+		FileDependencyImpl fileDependency = new FileDependencyImpl();
+
+		List<File> fileList = new ArrayList<File>();
+
 		fileList = changeCollector.createListOfEntries(repo, diffEntries);
 
-		fileDependency.getFileDependency(fileList);
+		List<ClassFile> classList = new ArrayList<ClassFile>();
+		
+		Parser classParser = new Parser(fileList);
+		
+		
+		classList = classParser.createClassCard(fileList);
+		System.out.println("*******************************************************************");
+		for(ClassFile cf:classList){
+			System.out.println("Classname: " + cf.getClassNAme());
+			System.out.println("________________________________________________________________");
+			System.out.println("Methods: ");
+			for(int i=0;i<cf.getMethodList().size();i++){
+				System.out.println(cf.getMethodList().get(i));
+			}
+			System.out.println("________________________________________________________________");
+			System.out.println("Functioncalls: ");
+			for(int i=0;i<cf.getFunctionCallList().size();i++){
+				System.out.println(cf.getFunctionCallList().get(i));
+			}
+			
+			System.out.println("*******************************************************************");
+		}
+		
+		
+//		fileDependency.getFileDependency(fileList);
 	}
 
 }
@@ -47,7 +74,7 @@ public class CommitParser {
 // }
 //
 // Repository repo = new FileRepository(chooser.getSelectedFile());
-//Git git = rr.getGit();// new Git(repo);
+// Git git = rr.getGit();// new Git(repo);
 
 // ObjectId currentHead = repo.resolve("HEAD^{tree}");
 //
@@ -73,8 +100,8 @@ public class CommitParser {
 
 /****************
  * Parse commit of all the branches List<Ref> branches =
- * git.branchList().call(); for (Ref branch : branches) { String
- * branchName = branch.getName();
+ * git.branchList().call(); for (Ref branch : branches) { String branchName =
+ * branch.getName();
  * 
  * System.out.println("Commits of branch: " + branch.getName());
  * System.out.println("-------------------------------------");
@@ -82,11 +109,10 @@ public class CommitParser {
  * /************ Iterable<RevCommit> commits = git.log().all().call();
  * 
  * 
- * Parse commit for (RevCommit commit : commits) { boolean
- * foundInThisBranch = false;
+ * Parse commit for (RevCommit commit : commits) { boolean foundInThisBranch =
+ * false;
  * 
- * RevCommit targetCommit = walk.parseCommit(repo.resolve(commit
- * .getName()));
+ * RevCommit targetCommit = walk.parseCommit(repo.resolve(commit .getName()));
  * 
  * 
  * // http://stackoverflow.com/questions/19941597/jgit-use- treewalk
@@ -108,8 +134,8 @@ public class CommitParser {
  * for (Map.Entry<String, Ref> e : repo.getAllRefs().entrySet()) { if
  * (e.getKey().startsWith(Constants.R_HEADS)) { if
  * (walk.isMergedInto(targetCommit,
- * walk.parseCommit(e.getValue().getObjectId()))) { String foundInBranch
- * = e.getValue().getName(); if (branchName.equals(foundInBranch)) {
+ * walk.parseCommit(e.getValue().getObjectId()))) { String foundInBranch =
+ * e.getValue().getName(); if (branchName.equals(foundInBranch)) {
  * foundInThisBranch = true; break; } } } }
  * 
  * Branch Info if (foundInThisBranch) {

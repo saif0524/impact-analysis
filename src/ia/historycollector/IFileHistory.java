@@ -1,4 +1,4 @@
-package ia.commithistory;
+package ia.historycollector;
 
 import java.io.File;
 import java.util.Calendar;
