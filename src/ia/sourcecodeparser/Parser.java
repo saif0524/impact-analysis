@@ -1,16 +1,5 @@
 package ia.sourcecodeparser;
 
-import japa.parser.JavaParser;
-import japa.parser.ParseException;
-import japa.parser.ast.CompilationUnit;
-import japa.parser.ast.body.MethodDeclaration;
-import japa.parser.ast.expr.BinaryExpr;
-import japa.parser.ast.expr.Expression;
-import japa.parser.ast.expr.MethodCallExpr;
-import japa.parser.ast.stmt.BlockStmt;
-import japa.parser.ast.stmt.Statement;
-import japa.parser.ast.visitor.VoidVisitorAdapter;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,6 +12,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ParseException;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.expr.BinaryExpr;
+import com.github.javaparser.ast.expr.Expression;
+import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.stmt.BlockStmt;
+import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 
 public class Parser {
 
@@ -113,7 +112,7 @@ public class Parser {
 	public List<String> getListOfMethods(File javaFile) {
 		CompilationUnit compileUnit = getMethods(javaFile);
 		MethodDeclarationVisitor visitor = new MethodDeclarationVisitor();
-		visitor.visit(compileUnit, null);
+		visitor.visit(compileUnit, this);
 
 		return visitor.getDeclaredMethodList();
 	}
@@ -121,7 +120,7 @@ public class Parser {
 	public BlockStmt getBodyOfMethods(File javaFile) {
 		CompilationUnit compileUnit = getMethods(javaFile);
 		MethodDeclarationVisitor visitor = new MethodDeclarationVisitor();
-		visitor.visit(compileUnit, null);
+		visitor.visit(compileUnit, this);
 
 		return visitor.getMethodList();
 	}
@@ -130,9 +129,11 @@ public class Parser {
 		CompilationUnit compileUnit = null;
 		try {
 			compileUnit = JavaParser.parse(javaFile);
-		} catch (japa.parser.ParseException e) {
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return compileUnit;

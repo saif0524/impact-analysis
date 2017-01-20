@@ -10,7 +10,7 @@ import javax.swing.JTextArea;
 public class DependencyResolver extends JTextArea {
 
 	public DependencyResolver(Entry<String, HashSet<String>> cm) {
-		super(5, 5);
+		super(20, 20);
 		String key = cm.getKey();
 		HashSet<String> values = cm.getValue();
 		if (!values.isEmpty()) {

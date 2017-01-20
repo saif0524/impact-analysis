@@ -2,16 +2,6 @@ package ia.dependencyresolver;
 
 import ia.sourcecodeparser.ClassFile;
 import ia.sourcecodeparser.Parser;
-import japa.parser.JavaParser;
-import japa.parser.ParseException;
-import japa.parser.ast.CompilationUnit;
-import japa.parser.ast.body.MethodDeclaration;
-import japa.parser.ast.expr.BinaryExpr;
-import japa.parser.ast.expr.Expression;
-import japa.parser.ast.expr.MethodCallExpr;
-import japa.parser.ast.stmt.BlockStmt;
-import japa.parser.ast.stmt.Statement;
-import japa.parser.ast.visitor.VoidVisitorAdapter;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -27,13 +17,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import com.github.javaparser.ParseException;
+
 public class ClassDependencyImpl implements IClassDependency {
 
 	private List<File> fileList;
-
-	private List<String> methodList = new ArrayList<String>();
-
-	private Map<String, String> fileMatrix = new HashMap<String, String>();
 
 	public List<File> getfileList() {
 		return fileList;
@@ -51,7 +39,7 @@ public class ClassDependencyImpl implements IClassDependency {
 		// Map<String, List<String>> classMap = new HashMap<String,
 		// List<String>>();
 
-		HashMap<String, HashSet<String>> classHashMap = new HashMap<>();
+		HashMap<String, HashSet<String>> classHashMap = new HashMap<String, HashSet<String>>();
 
 		for (File file : fileList) {
 
@@ -130,6 +118,46 @@ public class ClassDependencyImpl implements IClassDependency {
 		return classHashMap;
 	}
 
+	public void dependencyGraphGenerator(HashMap<String, HashSet<String>> classHashMap, String className){
+
+		boolean flag = true ;
+		List<String> classList = new ArrayList<String>();
+		
+		classList.add(className);
+	
+		HashSet<String> dependentClasses = classHashMap.get(className);
+
+		
+		if(dependentClasses != null){
+		
+			Iterator<String> iterator = dependentClasses.iterator();
+			while (iterator.hasNext()) {
+				classList.add(iterator.next());
+			}
+		}
+		
+		int depth = 0;
+		
+		while(flag){
+			flag = false;
+			
+			System.out.println("original class: "+ classList.get(0));
+			
+			for (int i = 1; i < classList.size(); i++) {
+				HashSet<String> dependent = classHashMap.get(className);
+				Iterator<String> iterator1 = dependent.iterator();
+				while (iterator1.hasNext()) {
+					String abc = iterator1.next();
+					if(!classList.contains(abc)){
+						classList.add(abc);
+						System.out.println("Dependent: "+abc);
+						flag = true;
+					}
+				}
+			}
+		}		
+	}
+
 	public void printDependency(HashMap<String, HashSet<String>> classHashMap) {
 		for (HashMap.Entry<String, HashSet<String>> entry : classHashMap
 				.entrySet()) {
@@ -178,6 +206,8 @@ public class ClassDependencyImpl implements IClassDependency {
 				.getFileDependency(fileList);
 
 		fileDependency.printDependency(classMap);
+		
+		fileDependency.dependencyGraphGenerator(classMap,"D:/Academics/8th_Semester/801 Project/repo/dp-factory-pattern/src/factory/main/MangoTree.java");
 	}
 }
 

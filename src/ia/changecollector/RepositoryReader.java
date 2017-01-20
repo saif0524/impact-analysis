@@ -3,6 +3,7 @@ package ia.changecollector;
 import java.io.IOException;
 
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.errors.AmbiguousObjectException;
@@ -36,16 +37,21 @@ public class RepositoryReader {
 		if ((returnVal == JFileChooser.APPROVE_OPTION)) {
 			if (chooser.getSelectedFile().getName().contains(".git")) {
 				System.out.println("You chose to open directory: "
-						+ chooser.getSelectedFile().getName());
+						+ chooser.getSelectedFile().getParent());
+				
+				JOptionPane.showMessageDialog(null, "You chose to open repository: "+chooser.getSelectedFile().getParent());
+
 			}
 
 			else {
 				System.out.println("You did not select any git repository");
+				JOptionPane.showMessageDialog(null, "Please Select a Git repository");
 				return null;
 			}
 
 		} else {
 			System.out.println("Nothing selected");
+			JOptionPane.showMessageDialog(null, "You did not select any git repository");
 			return null;
 		}
 

@@ -35,14 +35,17 @@ public class MainFrame extends JFrame {
 	JMenuItem openRepo = new JMenuItem("Open Repository (.git)");
 	JMenuItem exit = new JMenuItem("Exit");
 
-	JMenuItem showChangedFiles = new JMenuItem("Files Only");
-	JMenuItem showClassCards = new JMenuItem("Class Cards");
+	JMenuItem showChangedFiles = new JMenuItem("Class Only");
+	JMenuItem showClassCards = new JMenuItem("Class with methods");
 	JMenuItem showFunctionCalls = new JMenuItem("Files with Fuctioncalls");
 
 	JMenuItem dependencyLists = new JMenuItem("List Class Dependency");
 
 	JMenuItem generateDependencyGraph = new JMenuItem(
 			"Generate Dependency Graph");
+	
+	JMenuItem generateDependencyTree = new JMenuItem(
+			"Dependency as Tree");
 
 	JTextArea textarea;
 
@@ -58,15 +61,18 @@ public class MainFrame extends JFrame {
 
 	HashMap<String, HashSet<String>> classMap;
 
-	JPanel jp = new JPanel();
-
+	long startTime, stopTime, elapsedTime, total;
+	
+	
+	JPanel titleBarPanel = new JPanel();
+	JPanel itemPanel = new JPanel();
 	public MainFrame() {
 		super();
 		setTitle("Impact Analysis");
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		jp.setLayout(new GridLayout());
+		itemPanel.setLayout(new GridLayout());
 
-		this.add(jp);
+		this.add(itemPanel);
 		menuBarCreator();
 		// addTextField();
 
@@ -105,13 +111,14 @@ public class MainFrame extends JFrame {
 
 		changesMenu.add(showChangedFiles);
 		changesMenu.add(showClassCards);
-		changesMenu.add(showFunctionCalls);
+//		changesMenu.add(showFunctionCalls);
 	}
 
 	private void dependencyMenuCreator() {
 		menuBar.add(dependencyMenu);
 		dependencyMenu.add(dependencyLists);
-		dependencyMenu.add(generateDependencyGraph);
+//		dependencyMenu.add(generateDependencyTree);
+//		dependencyMenu.add(generateDependencyGraph);
 
 	}
 
@@ -122,9 +129,42 @@ public class MainFrame extends JFrame {
 				RepositoryReader repoReader = new RepositoryReader();
 
 				repo = repoReader.readRepo();
+				if (repo != null) {
+					changeCollector = new ChangeCollector();
 
-				changeCollector = new ChangeCollector();
+					try {
+						diffEntries = changeCollector.compareTrees(repo);
+					} catch (AmbiguousObjectException e1) {
+						e1.printStackTrace();
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					} catch (GitAPIException e1) {
+						e1.printStackTrace();
+					}
+				}
+				
+				startTime = System.currentTimeMillis();
+				fileList = new ArrayList<File>();
+				fileList = changeCollector.createListOfEntries(repo,
+						diffEntries);
+				
+				fileListGenerator();
+				fileDependency = new ClassDependencyImpl();
 
+
+
+				classMap = fileDependency.getFileDependency(fileList);
+				
+				classParserForFileList = new Parser(fileList);
+				classList = classParserForFileList.createClassCard(fileList);
+
+
+				
+				
+				stopTime = System.currentTimeMillis();
+				elapsedTime = stopTime - startTime;
+				
+				System.out.println(elapsedTime);
 			}
 
 		});
@@ -133,26 +173,17 @@ public class MainFrame extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				try {
-					diffEntries = changeCollector.compareTrees(repo);
-				} catch (AmbiguousObjectException e1) {
-					e1.printStackTrace();
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				} catch (GitAPIException e1) {
-					e1.printStackTrace();
-				}
+				
+				fileListGenerator();
+				
 				fileDependency = new ClassDependencyImpl();
-
-				fileList = new ArrayList<File>();
-
-				fileList = changeCollector.createListOfEntries(repo,
-						diffEntries);
 
 				classMap = fileDependency.getFileDependency(fileList);
 
 				classParserForFileList = new Parser(fileList);
 				classList = classParserForFileList.createClassCard(fileList);
+
+
 			}
 		});
 
@@ -168,9 +199,13 @@ public class MainFrame extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				startTime = System.currentTimeMillis();
 				dependecyViewer();
+				stopTime = System.currentTimeMillis();
+				elapsedTime += (stopTime - startTime);
+				System.out.println(elapsedTime);
 			}
-		});
+;		});
 
 	}
 
@@ -185,18 +220,20 @@ public class MainFrame extends JFrame {
 			ClassCard cc = new ClassCard(cf);
 			JScrollPane scrollPane = new JScrollPane(cc);
 			panel.add(scrollPane);
-		}
+		};
 
-		jp.removeAll();
+		itemPanel.removeAll();
 
-		jp.add(panel);
+		itemPanel.add(panel);
 
-		this.add(jp);
+		this.add(itemPanel);
 
 		this.revalidate();
 	}
 
 	public void dependecyViewer() {
+		
+		textarea = new JTextArea("Class cards of changed files");
 		JPanel panel = new JPanel();
 		GridLayout layout = new GridLayout(0, 3);
 		layout.setHgap(10);
@@ -210,17 +247,67 @@ public class MainFrame extends JFrame {
 			panel.add(scrollPane);
 		}
 
-		jp.removeAll();
+		itemPanel.removeAll();
 
-		jp.repaint();
+		itemPanel.repaint();
 
-		jp.add(panel);
-
-		this.add(jp);
+		itemPanel.add(panel);
+		this.add(textarea);
+		this.add(itemPanel);
 
 		this.revalidate();
 
 	}
+	
+	
+public void dependecyListViewer() {
+		
+		textarea = new JTextArea("Dependency as Tree");
+		JPanel panel = new JPanel();
+		GridLayout layout = new GridLayout(0, 3);
+		layout.setHgap(10);
+		layout.setVgap(10);
+		panel.setLayout(layout);
+
+		for (HashMap.Entry<String, HashSet<String>> cm : classMap.entrySet()) {
+			DependencyResolverTree drTree = new DependencyResolverTree(cm);
+			JScrollPane scrollPane = new JScrollPane(drTree);
+			panel.add(scrollPane);
+			panel.add(scrollPane);
+		}
+
+		itemPanel.removeAll();
+
+		itemPanel.repaint();
+
+		itemPanel.add(panel);
+		this.add(itemPanel);
+
+		this.revalidate();
+
+	}
+	
+	public void fileListGenerator(){
+		
+		textarea = new JTextArea("Changed file list");
+		
+		FileListGenerator fileList = new FileListGenerator(this.fileList);
+		
+		JScrollPane scrollPane = new JScrollPane(fileList);
+		itemPanel.removeAll();
+
+		itemPanel.repaint();
+
+		itemPanel.add(scrollPane);
+
+		this.add(textarea);
+		this.add(itemPanel);
+
+		this.revalidate();
+		
+		
+	}
+	
 
 	private void addTextField() {
 

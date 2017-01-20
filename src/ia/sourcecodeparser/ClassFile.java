@@ -6,6 +6,7 @@ public class ClassFile {
 
 	private String classNAme;
 	private List<String> methodList;
+	private List<String> fieldList;
 	private List<String> functionCallList;
 
 	public ClassFile(String classNAme) {
@@ -34,6 +35,14 @@ public class ClassFile {
 
 	public void setFunctionCallList(List<String> functionCallList) {
 		this.functionCallList = functionCallList;
+	}
+
+	public List<String> getFieldList() {
+		return fieldList;
+	}
+
+	public void setFieldList(List<String> fieldList) {
+		this.fieldList = fieldList;
 	}
 
 }

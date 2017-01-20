@@ -47,10 +47,9 @@ public class ChangeCollector {
 	public List<File> createListOfEntries(Repository repo,
 			List<DiffEntry> diffEntries) {
 
-		List<File> fileList = new ArrayList<>();
+		List<File> fileList = new ArrayList<File>();
 		for (DiffEntry entry : diffEntries) {
-			if (entry.getNewPath().contains(".java")
-					&& !(entry.getOldPath().contains("null"))) {
+			if (entry.getNewPath().contains(".java")) {
 
 				File tempFile = new File(entry.getNewPath());
 

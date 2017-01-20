@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Scanner;
 
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
@@ -67,6 +68,14 @@ public class CommitParser {
 		System.out.println("88888888888888888888888888888888888888888888888");
 		fileDependency.printDependency(classMap);
 
+		
+		
+		Scanner sc = new Scanner(System.in);
+		
+		String str = sc.next();
+		
+		fileDependency.dependencyGraphGenerator(classMap,str);
+		
 	}
 
 }
