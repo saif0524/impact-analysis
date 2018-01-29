@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
 
 public class MainFrame extends JFrame {
 
@@ -240,7 +241,7 @@ public class MainFrame extends JFrame {
 		layout.setVgap(10);
 		panel.setLayout(layout);
 
-		for (HashMap.Entry<String, HashSet<String>> cm : classMap.entrySet()) {
+		for (Entry<String, HashSet<String>> cm : classMap.entrySet()) {
 			DependencyResolver dr = new DependencyResolver(cm);
 			JScrollPane scrollPane = new JScrollPane(dr);
 			panel.add(scrollPane);
@@ -269,7 +270,7 @@ public void dependecyListViewer() {
 		layout.setVgap(10);
 		panel.setLayout(layout);
 
-		for (HashMap.Entry<String, HashSet<String>> cm : classMap.entrySet()) {
+		for (Entry<String, HashSet<String>> cm : classMap.entrySet()) {
 			DependencyResolverTree drTree = new DependencyResolverTree(cm);
 			JScrollPane scrollPane = new JScrollPane(drTree);
 			panel.add(scrollPane);

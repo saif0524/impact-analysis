@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.StringTokenizer;
 
 import com.github.javaparser.ParseException;
@@ -159,8 +160,7 @@ public class ClassDependencyImpl implements IClassDependency {
 	}
 
 	public void printDependency(HashMap<String, HashSet<String>> classHashMap) {
-		for (HashMap.Entry<String, HashSet<String>> entry : classHashMap
-				.entrySet()) {
+		for (Entry<String, HashSet<String>> entry : classHashMap.entrySet()) {
 			String key = entry.getKey();
 			HashSet<String> values = entry.getValue();
 			if (!values.isEmpty()) {

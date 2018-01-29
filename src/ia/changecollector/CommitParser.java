@@ -14,10 +14,13 @@ import java.util.Scanner;
 
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
+import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.lib.Repository;
 
 public class CommitParser {
 
+	
+	
 	public static void main(String[] args) throws IOException, GitAPIException {
 
 		RepositoryReader rr = new RepositoryReader();
@@ -29,6 +32,22 @@ public class CommitParser {
 		ChangeCollector changeCollector = new ChangeCollector();
 
 		List<DiffEntry> diffEntries = changeCollector.compareTrees(repo);
+		
+		
+		
+		//list diff entries
+		System.out.println("Entries");
+		for (DiffEntry entry : diffEntries) {
+			System.out.println("new path: " + entry.getNewId()+" || old path: " + entry.getOldId());
+			
+			//jgit examples https://doc.nuxeo.com/blog/jgit-example/
+			DiffFormatter formatter = new DiffFormatter(System.out);
+			formatter.setRepository(repo);
+			formatter.format(entry);			
+		}	
+		//end list diff entries	
+		
+/*		kkkk
 
 		ClassDependencyImpl fileDependency = new ClassDependencyImpl();
 
@@ -75,7 +94,7 @@ public class CommitParser {
 		String str = sc.next();
 		
 		fileDependency.dependencyGraphGenerator(classMap,str);
-		
+		kkkkkk*/
 	}
 
 }
