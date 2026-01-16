@@ -150,7 +150,7 @@ Institute of Information Technology
 University of Dhaka  
 
 Original Submission: November 15, 2016  
-Re-submission: December 14, 2016 :contentReference[oaicite:2]{index=2}
+Re-submission: December 14, 2016
 
 ---
 
