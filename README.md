@@ -31,16 +31,19 @@ The proposed approach consists of three main components:
 
 The workflow is:
 
-Git Repository
+Git Repository 
+|
 ↓
 Changed Java Files
+|
 ↓
 Static Source Code Parsing
+|
 ↓
 Class Dependency Extraction
+|
 ↓
 Reverse Dependency Graph (Impact Set)
-
 
 Only the Java files changed between Git revisions are analyzed, reducing unnecessary computation.
 
